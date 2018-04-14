@@ -1,8 +1,11 @@
 package subasta;
 
+import java.util.ArrayList;
+
 public class Usuario {
 	private String nombre;
 	private int credito;
+	private ArrayList<Subasta> subastas;
 	
 	
 	
@@ -10,11 +13,13 @@ public class Usuario {
 		super();
 		this.nombre = nombre;
 		this.credito = 0;
+		this.subastas= new ArrayList<>();
 	}
 	public Usuario(String nombre, int credito) {
 		super();
 		this.nombre = nombre;
 		this.credito = credito;
+		this.subastas= new ArrayList<>();
 	}
 	
 	public void incrementarCredito(int cantidad) {
@@ -33,6 +38,12 @@ public class Usuario {
 	}
 	public int getCredito() {
 		return credito;
+	}
+	public ArrayList<Subasta> getSubastas() {
+		return subastas;
+	}
+	public void setSubastas(ArrayList<Subasta> subastas) {
+		this.subastas = subastas;
 	}
 	
 	

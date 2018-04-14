@@ -7,7 +7,7 @@ public class Subasta {
 	private Usuario propietario;
 	private boolean abierta;
 	private ArrayList<Puja> pujas;
-	private Puja pujaMayor = getPujaMayor();
+	private Puja pujaMayor;
 	
 	
 	
@@ -19,15 +19,18 @@ public class Subasta {
 		this.propietario = propietario;
 		this.abierta = true;
 		this.pujas = new ArrayList<Puja>();
+		this.propietario.getSubastas().add(this);
 	}
 	
 	
 	public String ejecutar() {
 		String retorno;
-		if(pujas!=null) {
+		if(pujas.size()>0) {
 			if(this.isAbierta()) {
-				this.pujaMayor.getUsuario().decrementarCredito(this.pujaMayor.getCantidadPuja());
-				retorno = new String("subasta cerrada con exito: objeto "+this.producto+" adjudicado a "+this.getPujaMayor().getUsuario()+" por la cantidad de "+this.getPujaMayor().getCantidadPuja());
+				this.pujas.get(0).getUsuario().decrementarCredito(this.pujas.get(0).getCantidadPuja());
+				this.getPropietario().incrementarCredito(this.pujas.get(0).getCantidadPuja());
+				retorno = new String("subasta cerrada con exito: objeto "+this.producto+" adjudicado a "+this.pujas.get(0).getUsuario().getNombre()+" por la cantidad de "+this.pujas.get(0).getCantidadPuja());
+				this.abierta=false;
 			}
 			else retorno = new String("la subasta esta cerrada");
 		}
@@ -37,15 +40,20 @@ public class Subasta {
 	
 	public String pujar (Usuario usuario) {
 		String retorno;
-		int cantidad = this.getPujaMayor().getCantidadPuja();
-		if(this.pujaMayor==null) {
-			cantidad=0;
+		int cantidad;
+		if(this.getPujas().size()>0) {
+			cantidad = this.getPujas().get(0).getCantidadPuja();
 		}
+		else cantidad =0;
+		
 		if(this.isAbierta()) {
-			if(usuario.getCredito()>this.pujaMayor.getCantidadPuja()) {
+			if(usuario.getCredito()>cantidad) {
 				if(!usuario.equals(propietario)) {
-					pujas.add(0, new Puja(usuario, this.pujaMayor.getCantidadPuja()+1));
-					retorno="puja realizada " + cantidad + " por " + this.getProducto();
+					if(this.getPujaMayor()==null||cantidad > this.getPujaMayor().getCantidadPuja()) {
+						pujas.add(0, new Puja(usuario, cantidad));
+						retorno="puja realizada " + cantidad + " por " + this.getProducto();
+					}
+					else retorno = new String("la cantidad no supera la puja mayor de "+this.getPujaMayor().getCantidadPuja()); 
 				}
 				else retorno = new String("el usuario coincide con el propietario"); 	
 			}
@@ -60,7 +68,7 @@ public class Subasta {
 		if(this.isAbierta()) {
 			if(usuario.getCredito()>cantidad) {
 				if(!usuario.equals(propietario)) {
-					if(this.getPujaMayor()!=null||cantidad > this.getPujaMayor().getCantidadPuja()) {
+					if(this.getPujaMayor()==null||cantidad > this.getPujaMayor().getCantidadPuja()) {
 						pujas.add(0, new Puja(usuario, cantidad));
 						retorno="puja realizada " + cantidad + " por " + this.getProducto();
 					}
@@ -91,6 +99,7 @@ public class Subasta {
 	}
 
 	public Puja getPujaMayor() {
-		return pujas.get(0);
+		if(pujas.size()!=0)return pujas.get(0);
+		else return new Puja(new Usuario("sin pujas", 0),0);
 	}
 }
